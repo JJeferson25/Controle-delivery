@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Ganhos do Dia</title>
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --card:#12141b;
+      --muted:#9aa3b2;
+      --text:#eef2ff;
+      --line:#232734;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --accent:#60a5fa;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(96,165,250,.25), transparent 60%),
+                  radial-gradient(900px 700px at 110% 0%, rgba(34,197,94,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
+    }
+
+    .wrap{
+      max-width: 920px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 8px 6px 2px;
+    }
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 860px){
+      .grid{ grid-template-columns: 1.05fr .95fr; align-items:start; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card .hd{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .card .hd strong{font-size:14px}
+    .card .bd{ padding: 14px; }
+
+    .row{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 520px){
+      .row-2{ grid-template-columns: 1fr 1fr; }
+      .row-3{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+
+    input, select, button{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(18,20,27,.8);
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+    }
+    input::placeholder{ color: rgba(154,163,178,.7); }
+    input:focus, select:focus{
+      border-color: rgba(96,165,250,.65);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.18);
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    button{
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(96,165,250,.30), rgba(96,165,250,.12));
+      font-weight: 650;
+    }
+    button.secondary{
+      background: rgba(255,255,255,.06);
+      font-weight: 600;
+    }
+    button.danger{
+      background: linear-gradient(180deg, rgba(239,68,68,.30), rgba(239,68,68,.10));
+    }
+    button:active{ transform: translateY(1px); }
+
+    .kpis{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 520px){
+      .kpis{ grid-template-columns: 1fr 1fr; }
+    }
+    .kpi{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .kpi .t{ font-size:12px; color:var(--muted); margin-bottom: 6px; }
+    .kpi .v{ font-size: 18px; font-weight: 750; letter-spacing: .2px; }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--text);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:99px;
+      background: var(--accent);
+      display:inline-block;
+    }
+
+    .progressWrap{ display:grid; gap: 10px; }
+    .bar{
+      position:relative;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+    .barFill{
+      position:absolute; left:0; top:0; bottom:0;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(34,197,94,.85), rgba(96,165,250,.85));
+      transition: width .35s ease;
+    }
+    /* “barra dentro da barra” para o faltante (uma faixa que começa no ponto atual até o fim) */
+    .barRemain{
+      position:absolute; top:3px; bottom:3px;
+      right:3px;
+      left: calc(var(--fill, 0%) + 3px);
+      border-radius: 999px;
+      background: rgba(245,158,11,.22);
+      border: 1px dashed rgba(245,158,11,.35);
+      transition: left .35s ease;
+    }
+    .barLabel{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .list{
+      display:grid;
+      gap: 10px;
+    }
+    .item{
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.03);
+      border-radius: 16px;
+      padding: 12px;
+      display:grid;
+      gap: 10px;
+    }
+    .itemTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .itemTop strong{ font-size: 14px; }
+    .itemTop span{ color: var(--muted); font-size: 12px; }
+    .itemMid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .itemMid b{ color: var(--text); font-weight: 700; }
+    .itemBot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .winner{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(34,197,94,.10);
+      color: rgba(209, 250, 229, .95);
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .footerHint{
+      text-align:center;
+      color: rgba(154,163,178,.75);
+      font-size: 12px;
+      padding: 6px 2px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Ganhos do Dia</h1>
+        <p class="sub">iFood • 99 • Uber — com histórico e meta mensal</p>
+      </div>
+      <div class="chip" id="monthChip" title="Mês selecionado">
+        <span class="dot"></span>
+        <span id="monthChipText">—</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- ESQUERDA: cadastro + meta -->
+      <section class="card">
+        <div class="hd">
+          <strong>Adicionar registro diário</strong>
+          <span class="chip" title="Tudo fica salvo no seu aparelho">💾 Salva automático</span>
+        </div>
+        <div class="bd">
+          <div class="row row-2">
+            <div>
+              <label for="date">Data</label>
+              <input id="date" type="date" />
+            </div>
+            <div>
+              <label for="monthSelect">Mês do progresso</label>
+              <select id="monthSelect"></select>
+            </div>
+          </div>
+
+          <div class="row row-3" style="margin-top:10px">
+            <div>
+              <label for="ifood">iFood (R$)</label>
+              <input id="ifood" inputmode="decimal" placeholder="ex: 120,50" />
+            </div>
+            <div>
+              <label for="nine">99 (R$)</label>
+              <input id="nine" inputmode="decimal" placeholder="ex: 80" />
+            </div>
+            <div>
+              <label for="uber">Uber (R$)</label>
+              <input id="uber" inputmode="decimal" placeholder="ex: 60,75" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="addBtn">Salvar registro</button>
+            <button class="secondary" id="clearFormBtn" type="button">Limpar campos</button>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="card" style="box-shadow:none; border-radius: 16px;">
+            <div class="hd" style="border-bottom:none;">
+              <strong>Meta mensal e progresso</strong>
+              <button class="secondary" id="resetMonthBtn" type="button" style="width:auto; padding:10px 12px; border-radius:12px;">
+                Zerar mês
+              </button>
+            </div>
+            <div class="bd" style="padding-top:0;">
+              <div class="row row-2">
+                <div>
+                  <label for="goal">Meta do mês (R$)</label>
+                  <input id="goal" inputmode="decimal" placeholder="ex: 3500" />
+                </div>
+                <div>
+                  <label>&nbsp;</label>
+                  <button class="secondary" id="saveGoalBtn" type="button">Salvar meta</button>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="kpis">
+                <div class="kpi">
+                  <div class="t">Total no mês selecionado</div>
+                  <div class="v" id="monthTotal">R$ 0,00</div>
+                </div>
+                <div class="kpi">
+                  <div class="t">Faltando para a meta</div>
+                  <div class="v" id="remaining">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+
+              <div class="progressWrap">
+                <div class="barLabel">
+                  <span id="progressLeft">0%</span>
+                  <span id="progressRight">Meta: R$ 0,00</span>
+                </div>
+                <div class="bar" id="bar">
+                  <div class="barFill" id="barFill"></div>
+                  <div class="barRemain" id="barRemain"></div>
+                </div>
+                <div class="small" id="barInsideText">
+                  Faltante: R$ 0,00
+                </div>
+              </div>
+
+              <p class="small" style="margin:10px 0 0;">
+                Dica: selecione o mês em <b>“Mês do progresso”</b> para ver o total daquele mês e a barra correta.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- DIREITA: resumo + lista -->
+      <section class="card">
+        <div class="hd">
+          <strong>Histórico</strong>
+          <div class="actions" style="margin:0">
+            <button class="danger" id="wipeAllBtn" type="button" style="width:auto; padding:10px 12px; border-radius:12px;">
+              Apagar tudo
+            </button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="kpis" style="margin-bottom: 10px;">
+            <div class="kpi">
+              <div class="t">Total do dia (último registro)</div>
+              <div class="v" id="lastDayTotal">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Plataforma que pagou mais (último)</div>
+              <div class="v" id="lastWinner">—</div>
+            </div>
+          </div>
+
+          <div class="list" id="list"></div>
+
+          <div class="footerHint">Funciona offline • Dados ficam só no seu aparelho</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+  // ========= Utilidades =========
+  const brl = (n) => (isFinite(n) ? n : 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+
+  function parseMoney(input) {
+    // aceita: "120,50", "120.50", "1.200,50", "120"
+    if (!input) return 0;
+    let s = String(input).trim();
+    if (!s) return 0;
+
+    // remove espaços
+    s = s.replace(/\s+/g,'');
+    // se tiver vírgula, assume vírgula decimal e remove pontos de milhar
+    if (s.includes(',')) {
+      s = s.replace(/\./g,'').replace(',', '.');
+    }
+    // remove qualquer coisa que não seja número ou ponto
+    s = s.replace(/[^0-9.]/g,'');
+    const n = Number(s);
+    return isFinite(n) ? n : 0;
+  }
+
+  function monthKeyFromDate(yyyy_mm_dd) {
+    // "2026-02-08" -> "2026-02"
+    return (yyyy_mm_dd || '').slice(0,7);
+  }
+
+  function todayISO() {
+    const d = new Date();
+    const tzOff = d.getTimezoneOffset();
+    // Ajuste para mostrar a data local corretamente no input date
+    const local = new Date(d.getTime() - tzOff * 60000);
+    return local.toISOString().slice(0,10);
+  }
+
+  function monthLabel(key) {
+    // "2026-02" -> "Fev/2026"
+    const [y,m] = key.split('-').map(Number);
+    const d = new Date(y, m-1, 1);
+    return d.toLocaleDateString('pt-BR', { month:'short', year:'numeric' }).replace('.', '');
+  }
+
+  // ========= Storage =========
+  const STORAGE_KEY = 'ganhos_diarios_v1';
+  const GOAL_KEY = 'meta_mensal_v1';
+
+  function loadEntries() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function loadGoalByMonth() {
+    try {
+      return JSON.parse(localStorage.getItem(GOAL_KEY)) || {};
+    } catch { return {}; }
+  }
+
+  function saveGoalByMonth(obj) {
+    localStorage.setItem(GOAL_KEY, JSON.stringify(obj));
+  }
+
+  // ========= Estado =========
+  let entries = loadEntries(); // [{id,date,ifood,nine,uber, total, winner}]
+  let goals = loadGoalByMonth(); // { "2026-02": 3500 }
+
+  // ========= DOM =========
+  const elDate = document.getElementById('date');
+  const elMonthSelect = document.getElementById('monthSelect');
+  const elMonthChipText = document.getElementById('monthChipText');
+
+  const elIfood = document.getElementById('ifood');
+  const elNine = document.getElementById('nine');
+  const elUber = document.getElementById('uber');
+
+  const elAddBtn = document.getElementById('addBtn');
+  const elClearFormBtn = document.getElementById('clearFormBtn');
+
+  const elGoal = document.getElementById('goal');
+  const elSaveGoalBtn = document.getElementById('saveGoalBtn');
+  const elResetMonthBtn = document.getElementById('resetMonthBtn');
+
+  const elMonthTotal = document.getElementById('monthTotal');
+  const elRemaining = document.getElementById('remaining');
+  const elProgressLeft = document.getElementById('progressLeft');
+  const elProgressRight = document.getElementById('progressRight');
+  const elBarFill = document.getElementById('barFill');
+  const elBarRemain = document.getElementById('barRemain');
+  const elBarInsideText = document.getElementById('barInsideText');
+
+  const elList = document.getElementById('list');
+  const elLastDayTotal = document.getElementById('lastDayTotal');
+  const elLastWinner = document.getElementById('lastWinner');
+
+  const elWipeAllBtn = document.getElementById('wipeAllBtn');
+
+  // ========= Lógica =========
+  function computeWinner(ifood, nine, uber) {
+    const arr = [
+      { name: 'iFood', v: ifood },
+      { name: '99', v: nine },
+      { name: 'Uber', v: uber },
+    ].sort((a,b)=> b.v - a.v);
+
+    if (arr[0].v === 0) return '—';
+    // Empate?
+    const top = arr[0].v;
+    const ties = arr.filter(x => x.v === top && top > 0).map(x=>x.name);
+    return ties.length > 1 ? `Empate: ${ties.join(' / ')}` : arr[0].name;
+  }
+
+  function upsertEntry(newEntry) {
+    // Se já existir um registro com mesma data, atualiza
+    const idx = entries.findIndex(e => e.date === newEntry.date);
+    if (idx >= 0) {
+      entries[idx] = { ...entries[idx], ...newEntry };
+    } else {
+      entries.push(newEntry);
+    }
+    // ordenar por data desc
+    entries.sort((a,b)=> (a.date < b.date ? 1 : -1));
+    saveEntries(entries);
+  }
+
+  function deleteEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    saveEntries(entries);
+  }
+
+  function monthTotal(monthKey) {
+    return entries
+      .filter(e => monthKeyFromDate(e.date) === monthKey)
+      .reduce((sum,e)=> sum + (e.total || 0), 0);
+  }
+
+  function renderMonthOptions() {
+    // inclui: mês atual + meses existentes nos registros
+    const set = new Set();
+    set.add(monthKeyFromDate(todayISO()));
+    for (const e of entries) set.add(monthKeyFromDate(e.date));
+
+    const keys = Array.from(set).filter(Boolean).sort().reverse();
+    elMonthSelect.innerHTML = keys.map(k => `<option value="${k}">${monthLabel(k)}</option>`).join('');
+
+    // mantém seleção se possível
+    const current = elMonthSelect.value;
+    if (current && keys.includes(current)) return;
+
+    elMonthSelect.value = keys[0] || monthKeyFromDate(todayISO());
+  }
+
+  function renderProgress() {
+    const mKey = elMonthSelect.value;
+    const total = monthTotal(mKey);
+    const goal = parseMoney(goals[mKey] ?? 0);
+
+    elMonthChipText.textContent = `${monthLabel(mKey)}`;
+    elMonthTotal.textContent = brl(total);
+
+    const remaining = Math.max(goal - total, 0);
+    elRemaining.textContent = brl(remaining);
+
+    elProgressRight.textContent = `Meta: ${brl(goal)}`;
+
+    let pct = 0;
+    if (goal > 0) pct = Math.min((total / goal) * 100, 100);
+
+    elProgressLeft.textContent = `${pct.toFixed(0)}%`;
+
+    elBarFill.style.width = `${pct}%`;
+    elBarRemain.style.setProperty('--fill', `${pct}%`);
+
+    elBarInsideText.textContent = goal > 0
+      ? (remaining > 0 ? `Faltante: ${brl(remaining)}` : `Meta batida! ✅ Total: ${brl(total)}`)
+      : `Defina uma meta para ver o progresso.`;
+  }
+
+  function renderList() {
+    elList.innerHTML = '';
+
+    if (entries.length === 0) {
+      elList.innerHTML = `
+        <div class="small" style="padding:10px; border:1px dashed rgba(255,255,255,.14); border-radius:16px;">
+          Nenhum registro ainda. Preencha os valores e toque em <b>Salvar registro</b>.
+        </div>
+      `;
+      elLastDayTotal.textContent = '—';
+      elLastWinner.textContent = '—';
+      return;
+    }
+
+    const last = entries[0];
+    elLastDayTotal.textContent = brl(last.total || 0);
+    elLastWinner.textContent = last.winner || '—';
+
+    for (const e of entries) {
+      const winner = e.winner || '—';
+      elList.insertAdjacentHTML('beforeend', `
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <strong>${new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }).replace('.', '')}</strong>
+              <div class="small">Total: <b>${brl(e.total || 0)}</b></div>
+            </div>
+            <button class="secondary" type="button" data-del="${e.id}" style="width:auto; padding:10px 12px; border-radius:12px;">Excluir</button>
+          </div>
+
+          <div class="itemMid">
+            <div>iFood<br><b>${brl(e.ifood)}</b></div>
+            <div>99<br><b>${brl(e.nine)}</b></div>
+            <div>Uber<br><b>${brl(e.uber)}</b></div>
+          </div>
+
+          <div class="itemBot">
+            <div class="winner">Pagou mais: <b>${winner}</b></div>
+            <div class="small">Mês: <b>${monthLabel(monthKeyFromDate(e.date))}</b></div>
+          </div>
+        </div>
+      `);
+    }
+
+    // bind delete buttons
+    elList.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del');
+        deleteEntry(id);
+        refreshUI();
+      });
+    });
+  }
+
+  function refreshUI() {
+    renderMonthOptions();
+
+    // preencher input meta com a meta do mês selecionado
+    const mKey = elMonthSelect.value;
+    elGoal.value = goals[mKey] ? String(goals[mKey]).replace('.', ',') : '';
+
+    renderProgress();
+    renderList();
+  }
+
+  // ========= Eventos =========
+  elAddBtn.addEventListener('click', () => {
+    const date = elDate.value;
+    if (!date) {
+      alert('Escolha uma data.');
+      return;
+    }
+
+    const ifood = parseMoney(elIfood.value);
+    const nine  = parseMoney(elNine.value);
+    const uber  = parseMoney(elUber.value);
+
+    const total = ifood + nine + uber;
+    const winner = computeWinner(ifood, nine, uber);
+
+    upsertEntry({
+      id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      date,
+      ifood, nine, uber,
+      total,
+      winner
+    });
+
+    // limpar campos de valores (mantém data)
+    elIfood.value = '';
+    elNine.value = '';
+    elUber.value = '';
+
+    refreshUI();
+  });
+
+  elClearFormBtn.addEventListener('click', () => {
+    elIfood.value = '';
+    elNine.value = '';
+    elUber.value = '';
+  });
+
+  elMonthSelect.addEventListener('change', () => {
+    refreshUI();
+  });
+
+  elSaveGoalBtn.addEventListener('click', () => {
+    const mKey = elMonthSelect.value;
+    const g = parseMoney(elGoal.value);
+
+    goals[mKey] = g;
+    saveGoalByMonth(goals);
+    refreshUI();
+  });
+
+  elResetMonthBtn.addEventListener('click', () => {
+    const mKey = elMonthSelect.value;
+    const ok = confirm(`Zerar os registros do mês ${monthLabel(mKey)}? (Isso apaga somente esse mês)`);
+    if (!ok) return;
+
+    entries = entries.filter(e => monthKeyFromDate(e.date) !== mKey);
+    saveEntries(entries);
+    refreshUI();
+  });
+
+  elWipeAllBtn.addEventListener('click', () => {
+    const ok = confirm('Apagar TODOS os registros e metas?');
+    if (!ok) return;
+    entries = [];
+    goals = {};
+    saveEntries(entries);
+    saveGoalByMonth(goals);
+    refreshUI();
+  });
+
+  // ========= Init =========
+  elDate.value = todayISO();
+  refreshUI();
+</script>
+</body>
+</html>
